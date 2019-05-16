@@ -61,7 +61,8 @@ function callSluts() {
         console.log(err.message);
     }
 }
-async function setup() {
+
+function setup() {
     var options = document.getElementById("options");
     var tab_butts = options.getElementsByClassName("tab-butts")[0];
     var tab_cont = options.getElementsByClassName("tab-cont")[0];
@@ -74,7 +75,8 @@ async function setup() {
     var slut_cont = tab_cont.lastChild;
     slut_cont.setAttribute('data-id', tab_butts.childNodes.length - 1);
     slut_cont.innerHTML = `<input type="checkbox" id="partyTime" ${localStorage.getItem("slut.party") == "true" ? "checked":"defaultChecked='false'"}> Enable party time<br> <input type="checkbox" id="partymute" ${localStorage.getItem("slut.mute") == "true"?"checked":"defaultChecked='false'"}> Mute background webm<br>${(document.getElementById("userBG").outerHTML)} Custom background (Meguca)<br><input type="text" value="${localStorage.getItem("slut.duration") == null? 200:localStorage.getItem("slut.duration")}" class="form-control" id="cycleOverIn"> Set the time spent on each post in ms.`;
-    document.getElementById("partyTime").checked == true ? callSluts() : null;
+    if (document.getElementById("partyTime").checked == true) callSluts();
+    if (document.getElementsByName("userBG")[0].checked == true) document.getElementsByName("userBG")[1].checked = true;
     document.getElementById("partyTime").onclick = function() {
         if (this.checked) { //Starts background changing.
             console.log("Setting slut.party value to true");
