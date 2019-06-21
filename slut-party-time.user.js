@@ -174,7 +174,9 @@ function setup() {
     };
 
     if (document.getElementById("slut.remember").checked) {
-        setBackground(localStorage.getItem("slut.remember"));
+        tablelink = JSON.parse(localStorage.getItem("slut.remember"));
+        setBackground(tablelink.link);
+        currentname = tablelink.name;
     }
 
     document.getElementById("slut.clearlist").onclick = function() {
