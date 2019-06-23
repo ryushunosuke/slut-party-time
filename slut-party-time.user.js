@@ -34,7 +34,7 @@ async function sluts() {
     }
 }
 
-function setBackground(backurl) {
+function setBackground(backurl) { // Sets the background using the user-background-style if it's an image, and user-background if it is a video
     var userbackgroundpng = document.getElementById('user-background-style');
     var userbackgroundwebm = document.getElementById('user-background');
     if (backurl.includes('.webm') || backurl.includes('.mp4')) {
@@ -64,21 +64,13 @@ function setBackground(backurl) {
 
 }
 
-function callSluts() {
-    try {
-        sluts();
-    } catch (err) {
-        console.log(err.message);
-    }
-}
-
-var tablelink = {
+var tablelink = { //The struct used to save files into the localstorage. 
     name: "",
     link: ""
 }
 
 function appendToTable(table, filelink, filename, instorage) {
-    document.getElementById("slut.tablediv").style = "height:300px; overflow:auto;"
+    document.getElementById("slut.tablediv").style = "height:300px; overflow:auto;" //Expands the table if no values were currently in it.
     let url = filelink.slice(filelink.lastIndexOf("/") + 1),
         tr = document.createElement("tr"),
         td = document.createElement("td");
@@ -86,22 +78,23 @@ function appendToTable(table, filelink, filename, instorage) {
     tr.appendChild(td);
     tr.onclick = function() {
         setBackground(filelink);
-        document.getElementById("partyTime").checked = false;
+        document.getElementById("partyTime").checked = false; //Stops background changing
     }
     table.append(tr);
-    if (!instorage) {
+    if (!instorage) { //If it's not in storage then add it.
         tablelink.name = filename;
         tablelink.link = filelink;
         let tablearray = JSON.parse(localStorage.getItem("slut.imagelist") === "" ? null : localStorage.getItem("slut.imagelist"));
-        if (tablearray === null) tablearray = [];
+        if (tablearray === null) tablearray = []; //Local storage is an array of tablelink objects.
         tablearray.push(tablelink);
-        localStorage.setItem("slut.imagelist", JSON.stringify(tablearray));
+        localStorage.setItem("slut.imagelist", JSON.stringify(tablearray)); //Writes the array back to the localstorage after adding the new added tablelink to it.
     }
 
 }
 
-function setup() {
-    if (localStorage.getItem("slut.imagelist") == null) localStorage.setItem("slut.imagelist", "");
+function setup() { //Sets up the Options tab and start background changing if Party time checkbox is enabled.
+    if (localStorage.getItem("slut.imagelist") == null) localStorage.setItem("slut.imagelist", ""); //Sets slut.imagelist to a an empty string for easier checking later in the code
+    //Options HTML codes
     var options = document.getElementById("options");
     var tab_butts = options.getElementsByClassName("tab-butts")[0];
     var tab_cont = options.getElementsByClassName("tab-cont")[0];
@@ -114,36 +107,38 @@ function setup() {
     var slut_cont = tab_cont.lastChild;
     slut_cont.setAttribute('data-id', tab_butts.childNodes.length - 1);
     slut_cont.innerHTML = `<input type="checkbox" id="partyTime" ${localStorage.getItem("slut.party") == "true" ? "checked":"defaultChecked='false'"}> Enable party time<br> <input type="checkbox" id="partymute" ${localStorage.getItem("slut.mute") == "true"?"checked":"defaultChecked='false'"}> Mute background webm<br>${(document.getElementById("userBG").outerHTML)} Custom background (Meguca)<br><input type="checkbox" id="slut.remember" ${localStorage.getItem("slut.remind") == "true" ? "checked":"defaultChecked='false'"}> Remember the current background (<a id="slut.resetremind">Try again</a>)<br><input type="text" value="${localStorage.getItem("slut.duration") == null? 200:localStorage.getItem("slut.duration")}" class="form-control" id="cycleOverIn"> Set the time spent on each post in ms.<br><input type="button" id="partyaddlast"> Save current background image.<br><div id="slut.tablediv"><table id="slut.table"><tbody id="slut.tablebody"></tbody></table></div><br><br><a id="slut.clearlist">Clear list<a>`;
+    //^^ Has all the information for the options tab
     if (document.getElementById("partyTime").checked == true) callSluts();
-    if (document.getElementsByName("userBG")[0].checked == true) document.getElementsByName("userBG")[1].checked = true;
+    if (document.getElementsByName("userBG")[0].checked == true) document.getElementsByName("userBG")[1].checked = true; // If Meguca's custom background is enabled in the original tab, checks it again in the party time tab
 
     document.getElementById("partyTime").onclick = function() {
-        if (this.checked) { //Starts background changing.
+        if (this.checked) {
             localStorage.setItem("slut.party", true);
-            callSluts();
+            callSluts(); //Starts background changing.
         } else {
             console.log("Party is over");
             localStorage.setItem("slut.party", false);
         }
     };
 
-    document.getElementById("partymute").onclick = function() {
-        if (this.checked) localStorage.setItem("slut.mute", true);
-        else localStorage.setItem("slut.mute", false);
+    document.getElementById("partymute").onclick = function() { //Mute background.
+        if (this.checked) {
+            localStorage.setItem("slut.mute", true);
+        } else localStorage.setItem("slut.mute", false);
     };
 
     document.getElementById("partyaddlast").onclick = function() {
-        let medialink;
-        if (document.getElementById('user-background-style').childNodes.length != 0 && document.getElementById('user-background-style').childNodes[0].data != "") { //Take image url from image background
+        let medialink; // The current background is not stored anywhere to be easily grabbed, finds if the current background is a video or an image by checking both and finding the url accordingly
+        if (document.getElementById('user-background-style').childNodes.length != 0 && document.getElementById('user-background-style').childNodes[0].data != "") {
             medialink = document.getElementById('user-background-style').childNodes[0].data;
             medialink = medialink.slice(medialink.search("[(]") + 1, medialink.search("[)]"));
         } else if (document.getElementById('slutvideo') != null) {
             medialink = document.getElementById('slutvideo').src;
         }
-        appendToTable(document.getElementById("slut.tablebody"), medialink, currentname, false);
+        appendToTable(document.getElementById("slut.tablebody"), medialink, currentname, false); //Appends to the filelist table, also adds it to the local storage according to the last argument.
     };
 
-    if (localStorage.getItem("slut.imagelist") != "") {
+    if (localStorage.getItem("slut.imagelist") != "") { //Loads the file(url)s saved to the localstorage
         let images = JSON.parse(localStorage.getItem("slut.imagelist"));
         for (let i in images) {
             appendToTable(document.getElementById("slut.tablebody"), images[i].link, images[i].name, true);
@@ -161,25 +156,25 @@ function setup() {
             }
             tablelink.name = currentname;
             tablelink.link = medialink;
-            localStorage.setItem("slut.remember", JSON.stringify(tablelink))
-            localStorage.setItem("slut.remind", true)
+            localStorage.setItem("slut.remember", JSON.stringify(tablelink)) //Tries to change the background to the remembered image 
+            localStorage.setItem("slut.remind", true) //when loading a new page but something from Meguca is removing it after loading it
         } else if (!this.checked) {
             localStorage.setItem("slut.remind", false)
         }
     }
-    document.getElementById("slut.resetremind").onclick = function() {
+    document.getElementById("slut.resetremind").onclick = function() { //This is the "Try Again" button which sets the background to the remembered image.
         tablelink = JSON.parse(localStorage.getItem("slut.remember"));
         setBackground(tablelink.link);
         currentname = tablelink.name;
     };
 
-    if (document.getElementById("slut.remember").checked) {
+    if (document.getElementById("slut.remember").checked) { //If remember is checked on page load then set the background as the remembered image.
         tablelink = JSON.parse(localStorage.getItem("slut.remember"));
         setBackground(tablelink.link);
         currentname = tablelink.name;
     }
 
-    document.getElementById("slut.clearlist").onclick = function() {
+    document.getElementById("slut.clearlist").onclick = function() { //Clears the table, and the localstorage.
         document.getElementById("slut.tablebody").innerHTML = "";
         document.getElementById("slut.tablediv").style = "";
         localStorage.setItem("slut.imagelist", "");
@@ -187,6 +182,14 @@ function setup() {
 
     document.getElementById("cycleOverIn").onchange = function() {
         localStorage.setItem("slut.duration", this.value > 20 ? this.value : 20);
+    }
+}
+
+function callSluts() { // Used to call the main loop that does the main work
+    try {
+        sluts();
+    } catch (err) {
+        console.log(err.message);
     }
 }
 
